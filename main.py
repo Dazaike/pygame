@@ -7,7 +7,7 @@ pygame.init()
 # Screen dimensions
 WIDTH, HEIGHT = 800, 600
 screen = pygame.display.set_mode((WIDTH, HEIGHT))
-pygame.display.set_caption("Platformer Game v27")
+pygame.display.set_caption("Platformer Game v31")
 
 # Colors
 WHITE = (255, 255, 255)
