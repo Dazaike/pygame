@@ -7,7 +7,7 @@ pygame.init()
 # Screen dimensions
 WIDTH, HEIGHT = 800, 600
 screen = pygame.display.set_mode((WIDTH, HEIGHT))
-pygame.display.set_caption("Platformer Game v05")
+pygame.display.set_caption("Platformer Game v27")
 
 # Colors
 WHITE = (255, 255, 255)
@@ -26,10 +26,14 @@ on_ground = False
 animation_counter = 0
 
 # Load player images
-idle_image = pygame.image.load('idle.png')
-run_images = [pygame.image.load('run1.png'), pygame.image.load('run2.png')]
-jump_image = pygame.image.load('jump.png')
-fall_image = pygame.image.load('fall.png')
+try:
+    idle_image = pygame.image.load('idle.png')
+    run_images = [pygame.image.load('run1.png'), pygame.image.load('run2.png')]
+    jump_image = pygame.image.load('jump.png')
+    fall_image = pygame.image.load('fall.png')
+except pygame.error as e:
+    print(f"Error loading images: {e}")
+    sys.exit()
 
 # Scale images
 idle_image = pygame.transform.scale(idle_image, (player_size, player_size))
@@ -42,7 +46,20 @@ platforms = [
     pygame.Rect(200, 500, 400, 20),
     pygame.Rect(100, 400, 200, 20),
     pygame.Rect(500, 300, 300, 20),
+    pygame.Rect(50, 250, 150, 20),
+    pygame.Rect(600, 150, 200, 20),
+    pygame.Rect(300, 100, 200, 20),
 ]
+
+# Load platform images
+try:
+    platform_image = pygame.image.load('platform.png')
+except pygame.error as e:
+    print(f"Error loading platform image: {e}")
+    sys.exit()
+
+# Scale platform images to fit platform dimensions
+platform_images = [pygame.transform.scale(platform_image, (platform.width, platform.height)) for platform in platforms]
 
 # Game loop
 running = True
@@ -54,9 +71,9 @@ while running:
 
     # Key press handling
     keys = pygame.key.get_pressed()
-    if keys[pygame.K_LEFT]:
+    if keys[pygame.K_a]:  # Move left
         player_x -= player_speed
-    if keys[pygame.K_RIGHT]:
+    if keys[pygame.K_d]:  # Move right
         player_x += player_speed
     if keys[pygame.K_SPACE] and on_ground:  # Jump logic
         player_velocity_y = jump_strength
@@ -70,7 +87,7 @@ while running:
     player_rect = pygame.Rect(player_x, player_y, player_size, player_size)
     on_ground = False
     for platform in platforms:
-        if player_rect.colliderect(platform) and player_velocity_y > 0:
+        if player_rect.colliderect(platform) and player_velocity_y >= 0:
             player_y = platform.top - player_size
             player_velocity_y = 0
             on_ground = True
@@ -90,7 +107,7 @@ while running:
             player_image = jump_image
         else:
             player_image = fall_image
-    elif keys[pygame.K_LEFT] or keys[pygame.K_RIGHT]:
+    elif keys[pygame.K_a] or keys[pygame.K_d]:
         animation_counter += 1
         player_image = run_images[animation_counter // 10 % len(run_images)]
     else:
@@ -100,8 +117,8 @@ while running:
     screen.blit(player_image, (player_x, player_y))
 
     # Draw the platforms
-    for platform in platforms:
-        pygame.draw.rect(screen, GREEN, platform)
+    for platform, platform_img in zip(platforms, platform_images):
+        screen.blit(platform_img, (platform.x, platform.y))
 
     # Update the display
     pygame.display.flip()
